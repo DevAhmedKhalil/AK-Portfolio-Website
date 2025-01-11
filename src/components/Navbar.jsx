@@ -30,7 +30,7 @@ const Navbar = () => {
     <ul
       className={`list-none ${
         isSecondary ? "flex sm:hidden" : "hidden sm:flex"
-      } flex-row gap-6`}
+      } flex-row sm:flex-row gap-4`}
     >
       {navLinks.map((link) => (
         <li
@@ -41,7 +41,9 @@ const Navbar = () => {
               : isSecondary
               ? "text-secondary"
               : "text-white"
-          } hover:text-white text-[20px] font-medium cursor-pointer`}
+          } hover:text-white ${
+            isSecondary ? "text-sm" : "text-[20px]"
+          } font-medium cursor-pointer`}
           onClick={() => {
             setActive(link.title);
             if (isSecondary) {
@@ -53,16 +55,16 @@ const Navbar = () => {
         </li>
       ))}
       <li
-        className={`text-${
-          isSecondary ? "secondary" : "white"
-        } hover:text-white text-[20px] font-medium cursor-pointer`}
+        className={`${
+          isSecondary ? "text-secondary text-sm" : "text-white text-[20px]"
+        } hover:text-white font-medium cursor-pointer`}
       >
         <button onClick={toggleGitHub}>GitHub</button>
       </li>
       <li
-        className={`text-${
-          isSecondary ? "secondary" : "white"
-        } hover:text-white text-[20px] font-medium cursor-pointer`}
+        className={`${
+          isSecondary ? "text-secondary text-sm" : "text-white text-[20px]"
+        } hover:text-white font-medium cursor-pointer`}
       >
         <button onClick={toggleResume}>Resume</button>
       </li>
@@ -107,7 +109,7 @@ const Navbar = () => {
             />
             <div
               className={`p-4 black-gradient absolute top-14 right-0 mx-2 my-2 min-w-[120px] z-10 rounded-xl foggy-glass ${
-                toggle ? "flex" : "hidden"
+                toggle ? "flex text-small" : "hidden"
               }`}
             >
               {renderNavLinks(true)}

@@ -5,14 +5,10 @@ import { DRACOLoader } from "three/addons/loaders/DRACOLoader";
 import CanvasLoader from "../Loader";
 
 const ComputerModel = ({ isMobile }) => {
-  const { scene } = useGLTF(
-    "./desktop_pc/scene.gltf",
-    undefined,
-    (loader) => {
-      const dracoLoader = new DRACOLoader();
-      loader.setDRACOLoader(dracoLoader);
-    }
-  );
+  const { scene } = useGLTF("./desktop_pc/scene.gltf", undefined, (loader) => {
+    const dracoLoader = new DRACOLoader();
+    loader.setDRACOLoader(dracoLoader);
+  });
 
   return (
     <mesh>
@@ -28,8 +24,8 @@ const ComputerModel = ({ isMobile }) => {
       <pointLight intensity={1} />
       <primitive
         object={scene}
-        scale={isMobile ? 0.7 : 0.75}
-        position={isMobile ? [0, -3, -2.2] : [0, -3.25, -1.5]}
+        scale={isMobile ? 0.5 : 0.75} // Adjust scale for small screens
+        position={isMobile ? [0, -2.5, -1.5] : [0, -3.25, -1.5]} // Adjust position for small screens
         rotation={[-0.01, -0.2, -0.1]}
       />
     </mesh>
@@ -50,6 +46,9 @@ const ComputersCanvas = () => {
 
     mediaQuery.addEventListener("change", handleMediaQueryChange);
 
+    // Set initial value
+    setIsMobile(mediaQuery.matches);
+
     return () => {
       mediaQuery.removeEventListener("change", handleMediaQueryChange);
     };
@@ -60,7 +59,11 @@ const ComputersCanvas = () => {
       frameloop="demand"
       shadows
       dpr={[1, 2]}
-      camera={{ position: [20, 3, 5], fov: 25 }}
+      camera={
+        isMobile
+          ? { position: [10, 10, 10], fov: 35 } // Adjust camera for small screens
+          : { position: [20, 3, 5], fov: 25 }
+      }
       gl={{ preserveDrawingBuffer: true }}
     >
       <Suspense fallback={<CanvasLoader />}>

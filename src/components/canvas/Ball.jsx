@@ -10,25 +10,7 @@ import {
 import CanvasLoader from "../Loader";
 
 const Ball = React.memo(({ iconUrl }) => {
-  const [decal, setDecal] = React.useState(null);
-
-  React.useEffect(() => {
-    const loadTexture = async () => {
-      try {
-        const [loadedDecal] = await useTexture.preload([iconUrl]);
-        setDecal(loadedDecal);
-      } catch (error) {
-        console.error("Error loading texture:", error);
-        // Optionally, set a placeholder texture
-        setDecal(null);
-      }
-    };
-    loadTexture();
-  }, [iconUrl]);
-
-  if (!decal) {
-    return null; // Optionally render a placeholder mesh here
-  }
+  const decal = useTexture(iconUrl || "/default-icon.png");
 
   return (
     <Float speed={1.75} rotationIntensity={1} floatIntensity={2}>
@@ -42,13 +24,15 @@ const Ball = React.memo(({ iconUrl }) => {
           polygonOffsetFactor={-5}
           flatShading
         />
-        <Decal
-          position={[0, 0, 1]}
-          rotation={[2 * Math.PI, 0, 6.25]}
-          scale={1}
-          map={decal}
-          flatShading
-        />
+        {decal && (
+          <Decal
+            position={[0, 0, 1]}
+            rotation={[2 * Math.PI, 0, 6.25]}
+            scale={1}
+            map={decal}
+            flatShading
+          />
+        )}
       </mesh>
     </Float>
   );

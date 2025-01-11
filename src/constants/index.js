@@ -66,6 +66,10 @@ export const technologies = [
     icon: "https://cdn.iconscout.com/icon/free/png-512/free-react-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175109.png?f=webp&w=256",
   },
   {
+    name: "React Bootstrap",
+    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2sKupyhzMIOjrOkJXWAIx5bRPI83Hke6ZsA&s",
+  },
+  {
     name: "Tailwind CSS",
     icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/512px-Tailwind_CSS_Logo.svg.png?20230715030042",
   },
@@ -74,8 +78,12 @@ export const technologies = [
     icon: "https://cdn.iconscout.com/icon/free/png-512/free-nodejs-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-226034.png?f=webp&w=256",
   },
   {
-    name: "Three JS",
-    icon: "https://global.discourse-cdn.com/flex035/uploads/threejs/optimized/2X/e/e4f86d2200d2d35c30f7b1494e96b9595ebc2751_2_496x500.png",
+    name: "Laravel",
+    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Laravel.svg/1969px-Laravel.svg.png",
+  },
+  {
+    name: "PhP",
+    icon: "https://cdn.iconscout.com/icon/free/png-512/free-php-logo-icon-download-in-svg-png-gif-file-formats--brand-company-business-brands-pack-logos-icons-2284918.png?f=webp&w=256",
   },
   {
     name: "git",
