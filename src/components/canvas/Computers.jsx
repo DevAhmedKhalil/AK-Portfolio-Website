@@ -18,14 +18,14 @@ const ComputerModel = ({ isMobile }) => {
         angle={0.12}
         penumbra={1}
         intensity={1}
-        castShadow={!isMobile}
+        castShadow
         shadow-mapSize={1024}
       />
       <pointLight intensity={1} />
       <primitive
         object={scene}
-        scale={isMobile ? 0.5 : 0.75} // Adjust scale for small screens
-        position={isMobile ? [0, -2.5, -1.5] : [0, -3.25, -1.5]} // Adjust position for small screens
+        scale={isMobile ? 0.7 : 0.75}
+        position={isMobile ? [0, -3, -2.2] : [0, -3.25, -1.5]}
         rotation={[-0.01, -0.2, -0.1]}
       />
     </mesh>
@@ -41,12 +41,11 @@ const ComputersCanvas = () => {
     const mediaQuery = window.matchMedia("(max-width: 500px)");
 
     const handleMediaQueryChange = (event) => {
-      setIsMobile(event.matches); // Set isMobile based on screen width
+      setIsMobile(event.matches);
     };
 
     mediaQuery.addEventListener("change", handleMediaQueryChange);
 
-    // Cleanup event listener when component unmounts
     return () => {
       mediaQuery.removeEventListener("change", handleMediaQueryChange);
     };
@@ -57,12 +56,16 @@ const ComputersCanvas = () => {
       frameloop="demand"
       shadows
       dpr={[1, 2]}
-      camera={{ position: [20, 3, 5], fov: isMobile ? 30 : 25 }}
+      camera={{ position: [20, 3, 5], fov: 25 }}
       gl={{ preserveDrawingBuffer: true }}
     >
       <Suspense fallback={<CanvasLoader />}>
-        {/* Only render the ComputerModel when it's not a mobile screen */}
-        {!isMobile && <MemoizedComputerModel isMobile={isMobile} />}
+        <OrbitControls
+          enableZoom={false}
+          maxPolarAngle={Math.PI / 2}
+          minPolarAngle={Math.PI / 2}
+        />
+        <MemoizedComputerModel isMobile={isMobile} />
       </Suspense>
       <Preload all />
     </Canvas>
