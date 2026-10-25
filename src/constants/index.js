@@ -71,7 +71,7 @@ export const technologies = [
   },
   {
     name: "Tailwind CSS",
-    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Tailwind_CSS_Logo.svg/512px-Tailwind_CSS_Logo.svg.png?20230715030042",
+    icon: `${import.meta.env.BASE_URL}tech/tailwindcss.png`,
   },
   {
     name: "Node JS",
@@ -79,7 +79,7 @@ export const technologies = [
   },
   {
     name: "Laravel",
-    icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Laravel.svg/1969px-Laravel.svg.png",
+    icon: `${import.meta.env.BASE_URL}tech/laravel.png`,
   },
   {
     name: "PhP",
