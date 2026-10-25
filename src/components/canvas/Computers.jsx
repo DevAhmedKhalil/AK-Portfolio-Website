@@ -1,14 +1,13 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF } from "@react-three/drei";
-import { DRACOLoader } from "three/addons/loaders/DRACOLoader";
 import CanvasLoader from "../Loader";
+import { useMediaQuery } from "../../hooks";
+
+const MODEL_URL = `${import.meta.env.BASE_URL}desktop_pc/scene.gltf`;
 
 const ComputerModel = () => {
-  const { scene } = useGLTF("./desktop_pc/scene.gltf", undefined, (loader) => {
-    const dracoLoader = new DRACOLoader();
-    loader.setDRACOLoader(dracoLoader);
-  });
+  const { scene } = useGLTF(MODEL_URL);
 
   return (
     <mesh>
@@ -32,58 +31,30 @@ const ComputerModel = () => {
   );
 };
 
-const MemoizedComputerModel = React.memo(ComputerModel);
-
 const ComputersCanvas = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 500px)");
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 500px)");
-
-    const handleMediaQueryChange = (event) => {
-      setIsMobile(event.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleMediaQueryChange);
-
-    // Set the initial state
-    setIsMobile(mediaQuery.matches);
-
-    // Cleanup event listener when component unmounts
-    return () => {
-      mediaQuery.removeEventListener("change", handleMediaQueryChange);
-    };
-  }, []);
-
-  // If the screen is small, do not render the computer and balls sections
-  if (isMobile) {
-    return null; // Return nothing for small screens
-  }
+  // Small screens skip the model: it is 8 MB and hides the hero text.
+  if (isMobile) return null;
 
   return (
-    <>
-      {isMobile ? ( // Render a placeholder div when on a small screen
-        <div style={{ height: "200px" }} />
-      ) : (
-        <Canvas
-          frameloop="demand"
-          shadows
-          dpr={[1, 2]}
-          camera={{ position: [20, 3, 5], fov: 25 }}
-          gl={{ preserveDrawingBuffer: true }}
-        >
-          <Suspense fallback={<CanvasLoader />}>
-            <OrbitControls
-              enableZoom={false}
-              maxPolarAngle={Math.PI / 2}
-              minPolarAngle={Math.PI / 2}
-            />
-            <MemoizedComputerModel />
-          </Suspense>
-          <Preload all />
-        </Canvas>
-      )}
-    </>
+    <Canvas
+      frameloop="demand"
+      shadows
+      dpr={[1, 2]}
+      camera={{ position: [20, 3, 5], fov: 25 }}
+      gl={{ preserveDrawingBuffer: true }}
+    >
+      <Suspense fallback={<CanvasLoader />}>
+        <OrbitControls
+          enableZoom={false}
+          maxPolarAngle={Math.PI / 2}
+          minPolarAngle={Math.PI / 2}
+        />
+        <ComputerModel />
+      </Suspense>
+      <Preload all />
+    </Canvas>
   );
 };
 

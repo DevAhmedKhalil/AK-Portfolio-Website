@@ -1,4 +1,4 @@
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial, Preload } from "@react-three/drei";
 import * as random from "maath/random/dist/maath-random.esm";
@@ -7,11 +7,12 @@ import "../../index.css";
 const NUM_STARS = 1500; // Adjust the number of stars as needed
 
 const Stars = () => {
-  const ref = useRef({
-    rotation: { x: 0, y: 0, z: Math.PI / 4 },
-  });
+  const ref = useRef();
 
-  const sphere = random.inSphere(new Float32Array(NUM_STARS * 3), { radius: 1.2 });
+  // Generate the star positions once, not on every render.
+  const [sphere] = useState(() =>
+    random.inSphere(new Float32Array(NUM_STARS * 3), { radius: 1.2 })
+  );
 
   useFrame((state, delta) => {
     ref.current.rotation.x -= delta / 10;
