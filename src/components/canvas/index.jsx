@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import { lazy, Suspense } from "react";
 
 // Three.js is heavy, so each canvas loads in its own chunk after the page shows.
 const lazyCanvas = (load) => {

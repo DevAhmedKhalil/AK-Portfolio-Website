@@ -11,7 +11,7 @@ const Stars = () => {
 
   // Generate the star positions once, not on every render.
   const [sphere] = useState(() =>
-    random.inSphere(new Float32Array(NUM_STARS * 3), { radius: 1.2 })
+    random.inSphere(new Float32Array(NUM_STARS * 3), { radius: 1.2 }),
   );
 
   useFrame((state, delta) => {

@@ -45,7 +45,11 @@ const BallCanvas = ({ icon }) => {
   if (isMobile) return null;
 
   return (
-    <Canvas frameloop="demand" dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
+    <Canvas
+      frameloop="demand"
+      dpr={[1, 2]}
+      gl={{ preserveDrawingBuffer: true }}
+    >
       <Suspense fallback={<CanvasLoader />}>
         <OrbitControls enableZoom={false} />
         <Ball iconUrl={icon} />
