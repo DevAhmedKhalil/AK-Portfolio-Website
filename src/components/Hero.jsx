@@ -23,9 +23,10 @@ const Hero = () => {
             <Typewriter
               options={{
                 strings: [
-                  "BackEnd With Node.js",
-                  "FrontEnd With React.js",
-                  "MERN Stack",
+                  "Backend With Laravel",
+                  "Frontend With React",
+                  "APIs With Django & Node.js",
+                  "Deployments With Docker",
                 ],
                 autoStart: true,
                 loop: true,

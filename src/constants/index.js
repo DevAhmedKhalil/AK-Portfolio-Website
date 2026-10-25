@@ -13,199 +13,185 @@ export const navLinks = [
   },
 ];
 
+const tech = (name) => `${import.meta.env.BASE_URL}tech/${name}.png`;
+
 export const services = [
-  {
-    title: "JavaScript",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-javascript-logo-icon-download-in-svg-png-gif-file-formats--brand-company-business-brands-pack-logos-icons-2284965.png?f=webp&w=256",
-  },
-  {
-    title: "Node JS",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-nodejs-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-226034.png?f=webp&w=256",
-  },
-  {
-    title: "TypeScript",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-typescript-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-vol-7-pack-logos-icons-3030260.png?f=webp&w=256",
-  },
-  {
-    title: "React JS",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-react-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175109.png?f=webp&w=256",
-  },
-  {
-    title: "Java",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-java-logo-icon-download-in-svg-png-gif-file-formats--wordmark-programming-language-pack-logos-icons-1174953.png?f=webp&w=256",
-  },
-  {
-    title: "C++",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-cplusplus-logo-icon-download-in-svg-png-gif-file-formats--technology-social-media-company-brand-vol-2-pack-logos-icons-3029933.png?f=webp&w=256",
-  },
-  {
-    title: "Python",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-python-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-226051.png?f=webp&w=256",
-  },
-  {
-    title: "PhP",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-php-logo-icon-download-in-svg-png-gif-file-formats--brand-company-business-brands-pack-logos-icons-2284918.png?f=webp&w=256",
-  },
+  { title: "Backend Development", icon: tech("laravel") },
+  { title: "Frontend Development", icon: tech("react") },
+  { title: "DevOps & Deployment", icon: tech("docker") },
+  { title: "Automation & AI", icon: tech("python") },
 ];
 
+// One WebGL canvas per ball, and browsers cap the number of canvases, so keep this list short.
 export const technologies = [
-  {
-    name: "HTML 5",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-html-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-225995.png?f=webp&w=256",
-  },
-  {
-    name: "CSS 3",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-css-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-226095.png?f=webp&w=256",
-  },
-  {
-    name: "JavaScript",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-javascript-logo-icon-download-in-svg-png-gif-file-formats--brand-company-business-brands-pack-logos-icons-2284965.png?f=webp&w=256",
-  },
-  {
-    name: "React JS",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-react-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-freebies-pack-logos-icons-1175109.png?f=webp&w=256",
-  },
-  {
-    name: "React Bootstrap",
-    icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2sKupyhzMIOjrOkJXWAIx5bRPI83Hke6ZsA&s",
-  },
-  {
-    name: "Tailwind CSS",
-    icon: `${import.meta.env.BASE_URL}tech/tailwindcss.png`,
-  },
-  {
-    name: "Node JS",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-nodejs-logo-icon-download-in-svg-png-gif-file-formats--brand-development-tools-pack-logos-icons-226034.png?f=webp&w=256",
-  },
-  {
-    name: "Laravel",
-    icon: `${import.meta.env.BASE_URL}tech/laravel.png`,
-  },
-  {
-    name: "PhP",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-php-logo-icon-download-in-svg-png-gif-file-formats--brand-company-business-brands-pack-logos-icons-2284918.png?f=webp&w=256",
-  },
-  {
-    name: "git",
-    icon: "https://cdn.iconscout.com/icon/free/png-512/free-git-logo-icon-download-in-svg-png-gif-file-formats--programming-langugae-language-pack-logos-icons-1175218.png?f=webp&w=256",
-  },
+  { name: "Laravel", icon: tech("laravel") },
+  { name: "PHP", icon: tech("php") },
+  { name: "React JS", icon: tech("react") },
+  { name: "TypeScript", icon: tech("typescript") },
+  { name: "JavaScript", icon: tech("javascript") },
+  { name: "Node JS", icon: tech("nodejs") },
+  { name: "Python", icon: tech("python") },
+  { name: "MySQL", icon: tech("mysql") },
+  { name: "Docker", icon: tech("docker") },
+  { name: "Tailwind CSS", icon: tech("tailwindcss") },
 ];
 
 export const experiences = [
   {
-    title: "Backend Developer - E-commerce API",
-    company_name: "Self-Initiated Project",
-    icon: "https://cdn.iconscout.com/icon/premium/png-512-thumb/coding-development-plan-device-computer-programming-develop-code-38390.png?f=webp&w=256", // Backend-related icon
+    title: "Backend Developer",
+    company_name: "DotBytes",
+    icon: tech("laravel"),
     iconBg: "#161329",
-    date: "",
+    date: "2025 - Present",
     points: [
-      "Designed and developed a RESTful API for an e-commerce platform using Node.js and Express.",
-      "Implemented robust authentication and authorization using JWT and bcrypt for secure user access.",
-      "Integrated MongoDB for efficient data storage and retrieval, with optimized queries for product and user management.",
-      "Added custom validation using middleware to ensure data integrity across API endpoints.",
+      "Build backend features from business requirements, including REST APIs, authentication and permissions, order and invoice workflows, file uploads, notifications, and reports.",
+      "Integrate third-party services and keep production code fast and maintainable with caching, queues, and clear service layers.",
+      "Test features before release with Postman and PHPUnit, and work in a Git-based team workflow.",
     ],
   },
   {
-    title: "Category Management System - Backend Project",
-    company_name: "Self-Initiated Project",
-    icon: "https://cdn-icons-png.flaticon.com/512/3346/3346712.png",
+    title: "Software Developer",
+    company_name: "Soft Mission",
+    icon: tech("php"),
     iconBg: "#161329",
     date: "",
     points: [
-      "Developed a category management system with CRUD operations using Node.js and Express.",
-      "Processed image uploads with Multer and optimized image sizes using Sharp for better performance.",
-      "Implemented slug generation for dynamic URLs based on category names.",
-      "Designed a scalable architecture to handle future expansion, such as subcategories and product mapping.",
+      "Built and maintained full-stack web features using Laravel, Blade, HTML, CSS, and JavaScript.",
     ],
   },
   {
-    title: "Learning Frontend Development",
-    company_name: "Personal Growth",
-    icon: "https://cdn-icons-png.flaticon.com/512/1055/1055687.png", // Learning-related icon
+    title: "Backend Development and Software Testing Intern",
+    company_name: "Internship",
+    icon: tech("nodejs"),
     iconBg: "#161329",
     date: "",
     points: [
-      "Building an interactive portfolio using React, React Bootstrap, and Framer Motion for animations.",
-      "Learning to manage state effectively with React hooks like `useState` and `useEffect`.",
-      "Practicing modern CSS techniques, including responsive design and grid/flexbox layouts.",
-      "Integrating backend APIs with frontend components to create full-stack applications.",
+      "Built REST APIs and database models, tested features, and wrote clear, reproducible bug reports.",
     ],
   },
 ];
 
+// Only public links: most repos are private, and a private GitHub link shows visitors a 404.
 export const projects = [
   {
-    name: "Courses App (Node.js)",
+    name: "Fieramico",
+    subtitle: "Exhibition stand website and CMS",
     description:
-      "A course management system featuring CRUD operations with enhanced data storage using MongoDB. Includes role-based access control for Admin, Manager, and User roles.",
+      "A lead-generation site for a company that builds exhibition stands across Europe, with a portfolio, trade-fair guides, two quote wizards, and a full admin dashboard. English, Italian, and Arabic with full right-to-left support.",
     tags: [
-      { name: "Node.js", color: "blue-text-gradient" },
-      { name: "MongoDB", color: "green-text-gradient" },
-      { name: "Express.js", color: "pink-text-gradient" },
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "Inertia.js", color: "green-text-gradient" },
+      { name: "React", color: "pink-text-gradient" },
+      { name: "Docker", color: "blue-text-gradient" },
     ],
-    image: "https://philna.sh/_astro/node.DvAuachI_1ovMWA.webp",
-    source_code_link: "https://github.com/DevAhmedKhalil/courses-app-nodejs",
+    links: [{ label: "Live", url: "https://fieramico.alriyada.tech/" }],
   },
   {
-    name: "E-Commerce API (Node.js)",
+    name: "PMS",
+    subtitle: "Engineering project management platform",
     description:
-      "A comprehensive API for managing an e-commerce platform, including features like user authentication, product management, and order handling.",
+      "Projects, tasks, budgets, invoices, documents, and employee leave for engineering firms, with Admin, Manager, and Employee access, a Flutter mobile app on the same API, and 480 automated tests.",
     tags: [
-      { name: "Node.js", color: "blue-text-gradient" },
-      { name: "Express.js", color: "green-text-gradient" },
-      { name: "MongoDB", color: "pink-text-gradient" },
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "React", color: "green-text-gradient" },
+      { name: "Flutter", color: "pink-text-gradient" },
     ],
-    image: "https://philna.sh/_astro/node.DvAuachI_1ovMWA.webp",
-    source_code_link: "https://github.com/DevAhmedKhalil/nodejs-ecommerce-api",
+    links: [
+      {
+        label: "API Docs",
+        url: "https://documenter.getpostman.com/view/27901441/2sBYHQ2iAH",
+      },
+    ],
   },
   {
-    name: "Natours App",
+    name: "Invoice SaaS",
+    subtitle: "Multi-company invoicing",
     description:
-      "A tour booking application providing user authentication, tour reviews, and booking functionality, with advanced controllers and optimized models.",
+      "A multi-company invoicing product with subscriptions, payments, roles, VAT, and PDF and Excel exports.",
     tags: [
-      { name: "Node.js", color: "blue-text-gradient" },
-      { name: "Express.js", color: "green-text-gradient" },
-      { name: "MongoDB", color: "pink-text-gradient" },
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "Redis", color: "green-text-gradient" },
+      { name: "Docker", color: "pink-text-gradient" },
     ],
-    image: "https://philna.sh/_astro/node.DvAuachI_1ovMWA.webp",
-    source_code_link: "https://github.com/DevAhmedKhalil/natours-app",
+    links: [{ label: "Live", url: "https://invoice.bigapps.io/" }],
   },
   {
-    name: "Realtime Chat App",
+    name: "AttendAI CenterOS",
+    subtitle: "Face-recognition attendance",
     description:
-      "A feature-rich real-time chat application with user authentication, group chats, file attachments, and responsive design.",
+      "An offline-first attendance system for tutoring centers: a desktop app recognizes students by face, and an Arabic web dashboard manages groups, sessions, and reports.",
     tags: [
-      { name: "Node.js", color: "blue-text-gradient" },
-      { name: "React.js", color: "green-text-gradient" },
-      { name: "ChatEngine.io", color: "pink-text-gradient" },
+      { name: "Python", color: "blue-text-gradient" },
+      { name: "InsightFace", color: "green-text-gradient" },
+      { name: "Django", color: "pink-text-gradient" },
     ],
-    image:
-      "https://www.logisticinfotech.com/wp-content/uploads/2018/08/Node-React-Js-1.png",
-    source_code_link: "https://github.com/DevAhmedKhalil/fullstack-chat",
+    links: [],
   },
   {
-    name: "E-Commerce Django API",
+    name: "Fiera Exhibitions",
+    subtitle: "Exhibition platform and lead management",
     description:
-      "A Django-based API for managing e-commerce platforms, featuring promotions, collections, customer management, and order handling.",
+      "A lead-management platform with a multi-step inquiry form, lead scoring, and secure CAD file uploads.",
     tags: [
-      { name: "Django", color: "blue-text-gradient" },
-      { name: "REST Framework", color: "green-text-gradient" },
-      { name: "Python", color: "pink-text-gradient" },
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "React", color: "green-text-gradient" },
+      { name: "TypeScript", color: "pink-text-gradient" },
     ],
-    image: "https://www.svgrepo.com/show/373554/django.svg",
-    source_code_link: "https://github.com/DevAhmedKhalil/storefrontAPI",
+    links: [{ label: "Live", url: "https://ferra-exhibitions.bigapps.io/" }],
   },
   {
-    name: "Movie Explorer App",
+    name: "Find-Me",
+    subtitle: "Graduation project",
     description:
-      "A React-based application to explore movies, featuring popular lists, detailed views, search functionality, and pagination using the TMDb API.",
+      "An AI app that matches photos to help identify missing people, tuned to reduce false matches.",
     tags: [
-      { name: "React.js", color: "blue-text-gradient" },
-      { name: "TMDb API", color: "green-text-gradient" },
-      { name: "JavaScript", color: "pink-text-gradient" },
+      { name: "Python", color: "blue-text-gradient" },
+      { name: "OpenCV", color: "green-text-gradient" },
+      { name: "Django", color: "pink-text-gradient" },
     ],
-    image:
-      "https://miro.medium.com/v2/resize:fit:1400/1*x0d41ns8PTQZz4a3VbMrBg.png",
-    source_code_link: "https://github.com/DevAhmedKhalil/Movies-ReactApp",
+    links: [
+      { label: "GitHub", url: "https://github.com/DevAhmedKhalil/Find-Me" },
+    ],
+  },
+  {
+    name: "Crow Store",
+    subtitle: "Online shop",
+    description:
+      "An online store with product management, a shopping cart, and a complete order flow.",
+    tags: [
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "Blade", color: "green-text-gradient" },
+      { name: "MySQL", color: "pink-text-gradient" },
+    ],
+    links: [{ label: "Live", url: "https://crow.store.bigapps.io/" }],
+  },
+  {
+    name: "Multi-Vendor Store",
+    subtitle: "Marketplace",
+    description:
+      "A multi-store marketplace with one checkout, transactional orders, stock handling, and two-factor authentication.",
+    tags: [
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "Sanctum", color: "green-text-gradient" },
+      { name: "MySQL", color: "pink-text-gradient" },
+    ],
+    links: [],
+  },
+  {
+    name: "Product Management API",
+    subtitle: "Dashboard and API",
+    description:
+      "A product and category API with roles, translations, filtering, and media uploads, built on a service layer.",
+    tags: [
+      { name: "Laravel", color: "blue-text-gradient" },
+      { name: "Sanctum", color: "green-text-gradient" },
+      { name: "MySQL", color: "pink-text-gradient" },
+    ],
+    links: [
+      {
+        label: "GitHub",
+        url: "https://github.com/DevAhmedKhalil/Product-Management-System-Dashboard-API",
+      },
+    ],
   },
 ];

@@ -10,8 +10,7 @@ const Navbar = () => {
   const [toggle, setToggle] = useState(false);
 
   const toggleResume = () => {
-    const resumeUrl =
-      "https://drive.google.com/file/d/1jdEKr-38eFNm22udWFwr91OGM2LDIulb/view?usp=sharing";
+    const resumeUrl = `${import.meta.env.BASE_URL}Ahmed-Khalil-Software-Engineer-Resume.pdf`;
     window.open(resumeUrl);
   };
 
@@ -39,8 +38,8 @@ const Navbar = () => {
             active === link.title
               ? "text-white"
               : isSecondary
-              ? "text-secondary"
-              : "text-white"
+                ? "text-secondary"
+                : "text-white"
           } hover:text-white ${
             isSecondary ? "text-sm" : "text-[20px]"
           } font-medium cursor-pointer`}
