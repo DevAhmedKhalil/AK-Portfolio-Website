@@ -1,0 +1,27 @@
+{
+  "name": "LinkedIn evening AI post",
+  "nodes": [
+    {"parameters":{"rule":{"interval":[{"field":"cronExpression","expression":"30 21 * * *"}]}},
+     "name":"Every day 21:30","type":"n8n-nodes-base.scheduleTrigger","typeVersion":1.2,"position":[0,0]},
+    {"parameters":{"url":"=https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/posts.json?t={{ $now.toMillis() }}","options":{"response":{"response":{"responseFormat":"json"}}}},
+     "name":"Get posts","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[220,0]},
+    {"parameters":{"jsCode":"const today = $now.setZone('Africa/Cairo').toFormat('yyyy-MM-dd');\nconst rows = $input.all().flatMap(i => Array.isArray(i.json) ? i.json : (Array.isArray(i.json.data) ? i.json.data : [i.json]));\nconst post = rows.find(r => r.post_date === today);\nif (!post) return [];\nreturn [{ json: post }];"},
+     "name":"Pick today's post","type":"n8n-nodes-base.code","typeVersion":2,"position":[440,0]},
+    {"parameters":{"url":"=https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/{{ $json.image }}","options":{"response":{"response":{"responseFormat":"file","outputPropertyName":"data"}}}},
+     "name":"Download image","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[660,0]},
+    {"parameters":{"person":"","text":"={{ $('Pick today\\'s post').item.json.text }}","shareMediaCategory":"IMAGE","binaryPropertyName":"data","additionalFields":{"visibility":"PUBLIC"}},
+     "name":"Post on LinkedIn","type":"n8n-nodes-base.linkedIn","typeVersion":1,"position":[880,0],"onError":"continueErrorOutput"},
+    {"parameters":{"chatId":"1280104857","text":"=البوست بتاع بالليل نزل ✅\n{{ $json.urn ? 'https://www.linkedin.com/feed/update/' + $json.urn + '/' : '' }}\n\n{{ $('Pick today\\'s post').item.json.text }}","additionalFields":{"appendAttribution":false}},
+     "name":"Telegram: posted","type":"n8n-nodes-base.telegram","typeVersion":1.2,"position":[1100,-100]},
+    {"parameters":{"chatId":"1280104857","text":"=❌ بوست بالليل منزلش ({{ $('Pick today\\'s post').item.json.post_date }})\n{{ $json.error ? JSON.stringify($json.error).slice(0,500) : '' }}","additionalFields":{"appendAttribution":false}},
+     "name":"Telegram: failed","type":"n8n-nodes-base.telegram","typeVersion":1.2,"position":[1100,100]}
+  ],
+  "connections": {
+    "Every day 21:30":{"main":[[{"node":"Get posts","type":"main","index":0}]]},
+    "Get posts":{"main":[[{"node":"Pick today's post","type":"main","index":0}]]},
+    "Pick today's post":{"main":[[{"node":"Download image","type":"main","index":0}]]},
+    "Download image":{"main":[[{"node":"Post on LinkedIn","type":"main","index":0}]]},
+    "Post on LinkedIn":{"main":[[{"node":"Telegram: posted","type":"main","index":0}],[{"node":"Telegram: failed","type":"main","index":0}]]}
+  },
+  "settings":{"timezone":"Africa/Cairo","executionOrder":"v1"}
+}
