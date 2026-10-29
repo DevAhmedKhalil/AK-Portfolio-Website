@@ -1,0 +1,467 @@
+date,time,lang,topic,text,image_url,status,post_url
+2026-10-26,09:00,EN,Race conditions,"If two customers try to buy the last item at the same second, who gets it?
+
+In a lot of e-commerce code, the honest answer is: both of them 😅
+
+The usual checkout flow is read the stock, check it's enough, then decrement it. The gap between the read and the write is where things break. Two requests read ""1"", both pass the check, and you just sold something you don't have.
+
+In Laravel the fix is a transaction plus a row lock:
+
+DB::transaction(function () use ($item) {
+    $product = Product::whereKey($item->product_id)
+        ->lockForUpdate()
+        ->first();
+
+    if ($product->stock < $item->quantity) {
+        throw new OutOfStockException($product);
+    }
+
+    $product->decrement('stock', $item->quantity);
+});
+
+The second request now waits until the first one finishes, then sees the real stock.
+
+Code that works when you test it alone is not the same as code that works with real users clicking at the same time.
+
+Have you dealt with race conditions in your projects?
+
+#Laravel #BackendDevelopment #PHP",,queued,
+2026-10-27,09:00,AR,Auth vs Authorization,"سؤال بيتسأل كتير في الانترفيوهات: إيه الفرق بين Authentication و Authorization؟
+
+بالبلدي كده:
+Authentication = انت مين؟
+Authorization = مسموحلك تعمل إيه؟
+
+في Laravel الاتنين منفصلين:
+الـ auth middleware بيتأكد إن اليوزر عامل login. ولو لأ بيرجع 401.
+الـ Policy بتتأكد إن اليوزر ده بالذات من حقه يعدّل الفاتورة دي مثلاً. ولو لأ بيرجع 403.
+
+public function update(User $user, Invoice $invoice): bool
+{
+    return $user->id === $invoice->user_id;
+}
+
+وفي الكنترولر:
+Gate::authorize('update', $invoice);
+
+غلطة شائعة إن الناس تكتفي بالـ login وخلاص. فأي يوزر عامل login يقدر يغيّر الـ ID في الـ URL ويوصل لداتا مش بتاعته 👀
+
+انت بتحط الـ authorization logic فين في مشاريعك؟
+
+#Laravel #BackendDevelopment #WebSecurity",,queued,
+2026-10-28,09:00,EN,Form Requests,"My controllers used to be full of validation rules. Long, messy, hard to read.
+
+Then I started using Form Requests properly, and the controller went back to doing one job.
+
+class StoreInvoiceRequest extends FormRequest
+{
+    public function rules(): array
+    {
+        return [
+            'customer_id' => ['required', 'exists:customers,id'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
+        ];
+    }
+}
+
+Now the controller just type-hints StoreInvoiceRequest and uses $request->validated(). If the data is wrong, Laravel returns a 422 with the errors before my code even runs.
+
+What I like most is that only validated fields reach the controller. Less room for surprises.
+
+Do you keep validation in Form Requests, or inline in the controller?
+
+#Laravel #PHP #CleanCode",,queued,
+2026-10-29,09:00,EN,N+1,"A page with 20 invoices should not run 41 queries. But it often does.
+
+That's the N+1 problem. One query for the list, then one more for every relationship you touch inside the loop. In Blade it looks innocent: $invoice->customer->name.
+
+The fix is eager loading:
+
+$invoices = Invoice::with(['customer', 'items'])->paginate(20);
+
+And to catch it early, add this in AppServiceProvider:
+
+Model::preventLazyLoading(! app()->isProduction());
+
+Now lazy loading throws an error while you're developing, so you see it before your users feel it ✅
+
+Laravel Debugbar is also great here. Just look at the query count on every page you build.
+
+What's the first thing you check when a Laravel page gets slow?
+
+#Laravel #Performance #MySQL",,queued,
+2026-10-29,21:30,AR+EN,What Claude Code is,"ناس كتير فاكرة إن الـ AI في البرمجة يعني تفتح chat وتعمل copy paste للكود 😅
+
+Claude Code مختلف شوية. It runs in your terminal, inside your project folder.
+
+يعني بيقرا الملفات بنفسه، بيدور في الكود، بيعدّل في أكتر من فايل، وبيشغّل commands زي الـ tests أو git، وبيستأذنك قبل أي حاجة مهمة.
+
+So instead of explaining your whole project in a chat box, you just ask:
+""How does authentication work in this repo?""
+وهو يروح يقرا الكود ويرد عليك من الواقع.
+
+وفيه منه نسخة في VS Code و JetBrains و desktop app كمان، مش terminal بس.
+
+الفرق الحقيقي بالنسبالي: الـ AI بقى شايف الـ context كله، مش الحتة اللي انت لزقتها بس.
+
+خلال الأيام الجاية هكتب tips عملية عنه، حاجة كل يوم بالليل.
+
+انت جربته قبل كده ولا لسه بتستخدم الـ chat العادي؟
+
+#ClaudeCode #AI #SoftwareEngineering",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-10-29.png,queued,
+2026-10-30,09:00,AR,Invoice snapshot,"لو بتبني سيستم فواتير، فيه سؤال لازم تسأله بدري: لو سعر المنتج اتغير بكرة، الفواتير القديمة يحصلها إيه؟
+
+لو الـ invoice_items فيها product_id و quantity بس، والإجمالي بيتحسب من سعر المنتج الحالي، يبقى كل فاتورة قديمة هتتغير لوحدها 🤦‍♂️
+
+الفاتورة سجل لحاجة حصلت في لحظة معينة. مينفعش تمشي ورا جدول المنتجات.
+
+عشان كده الصح إن:
+- كل item يخزّن unit_price وقت البيع
+- الـ line total يتخزن، مش يتحسب كل مرة
+- جدول المنتجات يتستخدم بس وقت إنشاء فاتورة جديدة
+
+تغيير صغير في الـ schema، بس بيحميك من مشاكل كبيرة في أي حاجة ليها علاقة بالفلوس أو الريبورتات.
+
+إمتى بتخزن snapshot من الداتا بدل ما تعمل reference ليها؟
+
+#Laravel #DatabaseDesign #MySQL",,queued,
+2026-10-30,21:30,AR+EN,CLAUDE.md,"أول حاجة أنصح بيها لأي حد بيستخدم Claude Code: اعمل ملف CLAUDE.md 📄
+
+It's a markdown file in the root of your project. Claude Code reads it automatically at the start of every session.
+
+بتكتب فيه الحاجات اللي انت كنت بتعيدها كل مرة:
+
+- ازاي تشغّل الـ tests
+- الـ conventions بتاعة المشروع (مثلاً Form Requests للـ validation)
+- حاجات ممنوع يلمسها، زي migrations اتعملها run خلاص
+
+You can generate a first version with the /init command, then edit it yourself.
+
+نصيحة صغيرة: خليه قصير ومباشر. If a rule matters, write it clearly. لو كتبت رواية هيتوه زيك بالظبط 😄
+
+الملف ده بيتحط في git، فكل الفريق بيستفيد منه مش انت بس.
+
+لو هتكتب CLAUDE.md لمشروعك دلوقتي، أول rule هتحطها إيه؟
+
+#ClaudeCode #AI #DeveloperTools",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-10-30.png,queued,
+2026-10-31,09:00,EN,API responses,"One thing that makes an API nice to work with: every response looks the same.
+
+Early on I returned whatever was easy. Sometimes a model, sometimes an array, sometimes a string. The frontend had to guess every time.
+
+Now I stick to a few rules:
+- Use API Resources so the output shape is defined in one place
+- Use the right status code: 200, 201 for created, 422 for validation, 404, 403
+- Errors always have the same structure, with a message and the details
+
+return InvoiceResource::make($invoice)
+    ->response()
+    ->setStatusCode(201);
+
+It sounds boring, but the people consuming your API will notice.
+
+What's your rule for API error responses?
+
+#Laravel #RESTAPI #BackendDevelopment",,queued,
+2026-10-31,21:30,AR+EN,Plan mode,"أكبر غلطة ممكن تعملها مع أي AI coding tool: تقوله ""اعمل الفيتشر"" وتسيبه يكتب على طول.
+
+في Claude Code فيه حاجة اسمها Plan Mode. Press Shift+Tab to switch into it.
+
+في الوضع ده بيقرا الكود ويحلل، لكن مش بيعدّل ولا فايل. At the end he gives you a plan: which files, what changes, and why.
+
+انت بتراجع الخطة:
+لو فيها حاجة غلط، بتصححها قبل ما يتكتب سطر كود.
+لو تمام، بتوافق وهو يبدأ ينفذ.
+
+Debugging a wrong plan takes 2 minutes. Debugging 400 lines of wrong code takes your evening 🙃
+
+بالظبط زي ما بنعمل في الشغل الحقيقي: design الأول، code بعدين.
+
+انت بتخطط قبل ما تكتب كود، ولا بتبدأ على طول وتصلّح وانت ماشي؟
+
+#ClaudeCode #AI #SoftwareEngineering",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-10-31.png,queued,
+2026-11-01,09:00,EN,n8n,"I've been spending a lot of time with n8n lately, and it changed how I think about small automation tasks.
+
+Things that used to be a whole Laravel feature can sometimes be a workflow in an afternoon: a webhook comes in, some data gets cleaned, a message goes out to Telegram or email.
+
+What I like about it as a backend developer:
+- I can see the flow visually, which makes debugging easier
+- It talks to almost any API through HTTP Request nodes
+- When I need custom logic, there's a Code node
+
+It doesn't replace backend code. If something needs real business rules, tests and versioning, I still want it in the app. But for glue between services it's really handy ⚙️
+
+Next thing I want to learn properly is adding AI steps inside n8n workflows.
+
+Do you use n8n or something similar? For what?
+
+#n8n #Automation #BackendDevelopment",,queued,
+2026-11-01,21:30,AR+EN,Context management,"لاحظت إن الـ AI بيبدأ يتلخبط بعد session طويلة؟ ده مش صدفة.
+
+Every model has a context window. كل ملف قراه وكل command شغله بياخد مكان فيه. ولما يتملى بحاجات قديمة، الإجابات بتبقى أضعف.
+
+في Claude Code فيه two commands مهمين:
+
+/clear
+بيبدأ conversation جديدة من الصفر. Use it when you move to a different task. ملهاش لازمة يفضل فاكر bug صلّحته من ساعتين وانت دلوقتي شغال على فيتشر تانية.
+
+/compact
+بيلخص اللي فات ويكمل. Useful when you're mid-task and don't want to lose the thread.
+
+قاعدتي البسيطة: task جديدة = /clear 🧹
+
+ونفس الفكرة بتنطبق علينا احنا كمان بصراحة، دماغ مزحومة = قرارات أوحش.
+
+انت بتقسم شغلك مع الـ AI لـ sessions صغيرة ولا كله في chat واحد؟
+
+#ClaudeCode #AI #Productivity",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-01.png,queued,
+2026-11-02,09:00,AR,Indexes,"الـ index مش حل سحري لكل query بطيئة.
+
+الـ index بيساعد لما بتدوّر أو تعمل filter أو sort على عمود معين، زي:
+WHERE customer_id = 5
+ORDER BY created_at
+
+بس ليه تمن:
+- كل insert و update بيبقى أبطأ شوية، لأن الـ index لازم يتحدث
+- واخد مساحة
+- ولو عملت index على عمود قيمه قليلة جداً، زي status فيه قيمتين بس، ساعات مش هيفرق
+
+أسهل طريقة تعرف بيها: اكتب EXPLAIN قبل الـ query، وشوف هي بتستخدم الـ index ولا بتعمل full table scan 🔍
+
+ولو بتعمل filter على عمودين مع بعض كتير، فكّر في composite index، وترتيب الأعمدة فيه مهم.
+
+انت بتقرر تعمل index إمتى؟
+
+#MySQL #Database #BackendDevelopment",,queued,
+2026-11-02,21:30,AR+EN,Skills and custom commands,"لو بتكتب نفس الـ prompt الطويل كل شوية، فيه طريقة أحسن.
+
+Claude Code supports Skills. A skill is a folder with a SKILL.md file inside it, describing how to do a specific task your way.
+
+مثال: skill اسمها new-endpoint فيها:
+- اعمل Form Request للـ validation
+- اعمل API Resource للـ response
+- اكتب feature test
+- شغّل الـ tests قبل ما تقول خلصت
+
+بعد كده بدل ما تشرح كل ده، Claude بيستخدم الـ skill لوحده لما الطلب يناسبها، أو انت تناديها بالاسم.
+
+The skills live in .claude/skills inside the repo, so the whole team gets the same workflow. نفس الجودة، كل مرة ✅
+
+بالنسبالي دي أكتر حاجة بتفرق بين حد بيستخدم الـ AI كـ autocomplete، وحد عامله process.
+
+لو هتعمل skill واحدة لشغلك، هتبقى لإيه؟
+
+#ClaudeCode #AI #DeveloperTools",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-02.png,queued,
+2026-11-03,09:00,EN,Queues,"If your user has to wait for an email to send before the page loads, that's a sign you need a queue.
+
+Sending emails, generating PDFs, calling a slow external API. None of these need to happen inside the request.
+
+In Laravel it's simple:
+
+SendInvoiceEmail::dispatch($invoice);
+
+The job goes to the queue, the response returns right away, and a worker handles it in the background.
+
+A few things I learned to care about:
+- Set $tries and a backoff, because external services fail sometimes
+- Keep jobs small and pass IDs, not huge objects
+- Watch the failed_jobs table, don't let failures pile up quietly 👀
+
+The app feels faster even though the work is exactly the same.
+
+What's the first thing you move to a queue in a new project?
+
+#Laravel #Queues #BackendDevelopment",,queued,
+2026-11-03,21:30,AR+EN,Hooks,"تقول للـ AI ""اعمل format للكود"" مرة، ينفذ. المرة اللي بعدها ينسى 🤷‍♂️
+
+عشان كده Claude Code فيه Hooks.
+
+A hook is a shell command that runs automatically at a specific moment. مش طلب ممكن يتنسي، ده rule بيتنفذ كل مرة.
+
+أمثلة عملية:
+- PostToolUse: بعد أي تعديل في فايل، شغّل Laravel Pint عشان الـ formatting
+- PreToolUse: امنع أي تعديل على ملف .env
+- Stop: ابعتلي notification لما يخلص
+
+You define them in .claude/settings.json, so they're part of the project.
+
+الفكرة اللي عجبتني: الحاجات المهمة مينفعش تعتمد على إن حد ""يفتكر"". لا انت ولا الـ AI. خليها automatic.
+
+نفس منطق الـ CI بالظبط، بس على مستوى جهازك.
+
+لو هتحط hook واحد في مشروعك، هيعمل إيه؟
+
+#ClaudeCode #AI #Automation",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-03.png,queued,
+2026-11-04,09:00,EN,MVC and services,"""Fat models, skinny controllers"" was the advice I heard everywhere. Then my models got too fat.
+
+What works better for me now in Laravel:
+- Controller: receives the request, calls something, returns a response
+- Form Request: validation
+- Model: relationships, casts, simple scopes
+- Service or Action class: the actual business logic, like creating an order with its items and stock updates
+
+class CreateOrder
+{
+    public function handle(User $user, array $items): Order
+    {
+        // the business logic lives here
+    }
+}
+
+The nice part is that the same action can be called from a controller, a job, or a command, and it's easy to test on its own.
+
+Where do you put business logic in your Laravel apps?
+
+#Laravel #SoftwareArchitecture #CleanCode",,queued,
+2026-11-04,21:30,AR+EN,MCP,"الـ AI لوحده شايف الكود بس. طب لو محتاج يشوف الداتابيز؟ أو الـ issues على GitHub؟
+
+هنا ييجي دور MCP، Model Context Protocol.
+
+It's an open standard that lets AI tools connect to external systems. في Claude Code بتضيف MCP server بـ command واحد: claude mcp add
+
+وبعدها يقدر مثلاً:
+- يقرا الـ schema من الداتابيز بدل ما يخمّن أسماء الكولمز
+- يفتح issue ويقراها ويبدأ يحلها
+- يدور في docs حديثة بدل معلومات قديمة
+
+بما إني بشتغل n8n كتير، الفكرة دي مألوفة جداً: integrations بتربط الأنظمة ببعض 🔌
+
+بس خلي بالك: أي MCP server بتضيفه بياخد صلاحيات. Read-only access is enough most of the time. متديهوش write على production أبداً.
+
+لو هتوصل Claude Code بأداة واحدة، هتختار إيه؟
+
+#ClaudeCode #MCP #AI",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-04.png,queued,
+2026-11-05,09:00,AR,Caching,"بذاكر System Design اليومين دول، وأول حاجة حبيت أفهمها كويس هي الـ caching.
+
+أبسط pattern اسمه cache-aside:
+1. تدوّر على الداتا في الكاش
+2. لو موجودة ترجعها
+3. لو مش موجودة تجيبها من الداتابيز وتحطها في الكاش
+
+وفي Laravel ده سطر واحد:
+
+$products = Cache::remember('products.featured', 600, fn () =>
+    Product::where('featured', true)->get()
+);
+
+الجزء الصعب مش إنك تحط حاجة في الكاش. الصعب إنك تعرف تمسحها إمتى 😅
+لو المنتج اتعدل والكاش لسه فيه النسخة القديمة، اليوزر هيشوف داتا غلط.
+
+عشان كده بفكر قبل أي كاش: الداتا دي بتتغير قد إيه؟ ومقبول تبقى قديمة لمدة قد إيه؟
+
+إيه أكتر مشكلة قابلتك مع الكاش؟
+
+#SystemDesign #Laravel #Caching",,queued,
+2026-11-05,21:30,AR+EN,Subagents,"تخيل بدل AI واحد بيعمل كل حاجة، عندك فريق صغير كل واحد متخصص في حاجة.
+
+ده اللي بتعمله Subagents في Claude Code.
+
+A subagent has its own instructions, its own tools, and most importantly its own context window.
+
+يعني ممكن تعمل:
+- code-reviewer: بيراجع الـ diff بس، ومعندوش صلاحية يعدّل
+- test-writer: بيكتب tests للفيتشر الجديدة
+
+الميزة الكبيرة إن الـ subagent بيروح يدور في ملفات كتير، ويرجع للـ main session بالنتيجة بس. فالـ context الأساسي بيفضل نضيف 🧠
+
+You define them as markdown files in .claude/agents. Or just run /agents and create one from there.
+
+أكتر حاجة عجبتني فيها: الـ reviewer مش هو اللي كتب الكود، فبيبص عليه بعين تانية. زي الـ code review الحقيقي.
+
+لو عندك AI teammate واحد متخصص، هيبقى في إيه؟
+
+#ClaudeCode #AI #SoftwareEngineering",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-05.png,queued,
+2026-11-06,09:00,EN,Git habits,"A few Git habits that made my life easier, especially when coming back to old code:
+
+- Small commits that do one thing. Easier to review, easier to revert.
+- Messages that say why, not just what. ""Fix invoice total rounding"" beats ""update"".
+- A branch for every feature, even when working alone.
+- Pull before you start, not after you're done 🙃
+
+None of this is advanced. But when something breaks and you run git log to find out when, you'll thank yourself.
+
+What's one Git habit you wish you had started earlier?
+
+#Git #SoftwareEngineering #DeveloperLife",,queued,
+2026-11-06,21:30,AR+EN,Headless mode and automation,"معظم الناس بتستخدم Claude Code كـ chat. بس فيه mode تاني أنا شايفه مهم جداً للـ automation.
+
+claude -p ""your prompt""
+
+The -p flag runs it once, non-interactive, prints the result and exits. يعني تقدر تحطه في أي script.
+
+أفكار عملية:
+- تلخيص الـ git log كل يوم وتحويله لـ changelog
+- مراجعة أي Pull Request أوتوماتيك في GitHub Actions
+- تحليل error logs وطلع ملخص للمشكلة
+
+وكمان تقدر تحدد الـ output format كـ JSON، فيدخل في أي pipeline تاني بسهولة.
+
+أنا كمان شايف ده مكمّل جامد لـ n8n: workflow بيجمع الداتا، و AI step بيحللها، والنتيجة تروح Telegram أو Slack ⚡
+
+بس نفس القاعدة: اديله أقل صلاحيات ممكنة لما يشتغل لوحده من غير ما حد يراقبه.
+
+إيه أول task مملة كنت هتخليها automatic بالطريقة دي؟
+
+#ClaudeCode #Automation #AI",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-06.png,queued,
+2026-11-07,09:00,EN,E-commerce rules,"Building an e-commerce app taught me that most of the hard parts are not the pages you see.
+
+They're the rules behind them:
+- stock must never go below zero
+- an order and its items should be saved together or not at all
+- prices on an order must stay as they were at checkout
+- a failed payment must not leave a ""half order"" in the database
+
+None of these show up in a design mockup. But they're exactly what makes users trust a store, and they're where most of my backend time actually went 🛒
+
+If you've built an e-commerce project, what was the trickiest part for you?
+
+#Laravel #Ecommerce #BackendDevelopment",,queued,
+2026-11-07,21:30,AR+EN,"Verify, don't trust","أسرع طريقة تبوّظ بيها مشروع: تعمل accept لكل اللي الـ AI كتبه من غير ما تقرا 😬
+
+الكود اللي بيطلع من أي AI tool شكله مقنع جداً. The syntax is clean, the names are good. وده بالظبط اللي بيخليه خطير لو فيه غلطة في الـ logic.
+
+حاجات بقيت أعملها كل مرة:
+
+Give it a way to check itself. قوله يكتب test الأول، أو يشغّل الـ tests بعد التعديل. لو مفيش طريقة يتأكد بيها، هو بيخمّن.
+
+اقرا الـ diff. مش لازم كل سطر بنفس التركيز، بس لازم تفهم إيه اللي اتغير وليه.
+
+Commit in small steps. لو حاجة باظت، ترجع خطوة واحدة مش يوم شغل كامل.
+
+الـ AI خلّى كتابة الكود أسرع بكتير. لكن فهم السيستم، والـ trade-offs، وإن الكود ده صح فعلاً، ده لسه شغلنا احنا.
+
+انت بتراجع كود الـ AI ازاي قبل ما تعمله merge؟
+
+#AI #ClaudeCode #SoftwareEngineering",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-07.png,queued,
+2026-11-08,09:00,AR,Two-week recap,"بقالي أسبوعين بنزل بوست كل يوم عن الباك إند، وحبيت أقف شوية وأقول اتعلمت إيه من التجربة دي.
+
+إنك تشرح حاجة في بوست قصير أصعب بكتير من إنك تكتبها كود. ساعات كنت فاكر إني فاهم حاجة كويس، ولما جيت أكتبها بالبلدي اكتشفت إن فيه حتة مش واضحة عندي.
+
+اتكلمت عن race conditions، والـ authorization، والـ N+1، والـ indexes، والـ queues، والـ caching، و n8n.
+
+الفترة الجاية عايز أركز أكتر على:
+- System Design بأمثلة عملية
+- AI automation جوه n8n
+- مشاكل حقيقية بتقابلني في الشغل وإزاي بحلها
+
+لو فيه موضوع نفسك أكتب عنه، قولّي في الكومنتات 👇
+
+#BackendDevelopment #LearningInPublic #Laravel",,queued,
+2026-11-08,21:30,AR+EN,Permissions,"أول ما تستخدم Claude Code هتلاحظ إنه بيستأذن كتير: ""أشغّل الـ command ده؟"" ""أعدّل الفايل ده؟""
+
+في الأول ده بيزهق، والإغراء إنك تقفل الأسئلة دي كلها. متعملهاش 🙏
+
+The better way is a permissions allowlist in .claude/settings.json.
+
+بتحدد بالظبط إيه المسموح من غير سؤال، زي إنه يشغّل php artisan test أو git status.
+وإيه الممنوع خالص، زي إنه يقرا ملف .env اللي فيه الـ secrets.
+
+كده الحاجات الآمنة والمتكررة بتمشي بسرعة، والحاجات الخطيرة لسه محتاجة موافقتك.
+
+وفيه flag اسمه --dangerously-skip-permissions. الاسم نفسه بيقولك كل حاجة. Use it only inside an isolated container, never on your main machine.
+
+نفس مبدأ Least Privilege اللي بنطبقه على الـ users والـ APIs، بالظبط.
+
+انت بتسيب الـ AI يشغّل commands من غير ما يستأذن؟
+
+#ClaudeCode #AI #Security",https://raw.githubusercontent.com/DevAhmedKhalil/AK-Portfolio-Website/linkedin-assets/images/2026-11-08.png,queued,

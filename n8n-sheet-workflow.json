@@ -1,0 +1,42 @@
+{
+  "name": "LinkedIn posts from Google Sheet",
+  "nodes": [
+    {"parameters":{"rule":{"interval":[{"field":"cronExpression","expression":"0 9 * * *"},{"field":"cronExpression","expression":"30 21 * * *"}]}},
+     "name":"09:00 and 21:30","type":"n8n-nodes-base.scheduleTrigger","typeVersion":1.2,"position":[0,0]},
+    {"parameters":{"assignments":{"assignments":[{"id":"a1","name":"script_url","value":"PASTE_APPS_SCRIPT_WEB_APP_URL","type":"string"}]},"options":{}},
+     "name":"Config","type":"n8n-nodes-base.set","typeVersion":3.4,"position":[200,0]},
+    {"parameters":{"url":"={{ $('Config').item.json.script_url }}","options":{"response":{"response":{"responseFormat":"json"}}}},
+     "name":"Get due post","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[400,0]},
+    {"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"loose"},"conditions":[{"id":"c1","leftValue":"={{ $json.found }}","rightValue":true,"operator":{"type":"boolean","operation":"true","singleValue":true}}],"combinator":"and"},"options":{}},
+     "name":"Post due?","type":"n8n-nodes-base.if","typeVersion":2.2,"position":[600,0]},
+    {"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"loose"},"conditions":[{"id":"c2","leftValue":"={{ $json.image_url }}","rightValue":"","operator":{"type":"string","operation":"notEmpty","singleValue":true}}],"combinator":"and"},"options":{}},
+     "name":"Has image?","type":"n8n-nodes-base.if","typeVersion":2.2,"position":[800,0]},
+    {"parameters":{"url":"={{ $json.image_url }}","options":{"response":{"response":{"responseFormat":"file","outputPropertyName":"data"}}}},
+     "name":"Download image","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1000,-120]},
+    {"parameters":{"person":"","text":"={{ $('Get due post').item.json.text }}","shareMediaCategory":"IMAGE","binaryPropertyName":"data","additionalFields":{"visibility":"PUBLIC"}},
+     "name":"LinkedIn with image","type":"n8n-nodes-base.linkedIn","typeVersion":1,"position":[1200,-120],"onError":"continueErrorOutput"},
+    {"parameters":{"person":"","text":"={{ $('Get due post').item.json.text }}","additionalFields":{"visibility":"PUBLIC"}},
+     "name":"LinkedIn text only","type":"n8n-nodes-base.linkedIn","typeVersion":1,"position":[1200,120],"onError":"continueErrorOutput"},
+    {"parameters":{"url":"={{ $('Config').item.json.script_url }}?action=mark&status=posted&row={{ $('Get due post').item.json.row }}&url={{ encodeURIComponent('https://www.linkedin.com/feed/update/' + $json.urn + '/') }}","options":{}},
+     "name":"Mark posted","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1420,-60]},
+    {"parameters":{"chatId":"1280104857","text":"=البوست نزل ✅ ({{ $('Get due post').item.json.time }})\nhttps://www.linkedin.com/feed/update/{{ $('LinkedIn with image').isExecuted ? $('LinkedIn with image').item.json.urn : $('LinkedIn text only').item.json.urn }}/\n\n{{ $('Get due post').item.json.text }}","additionalFields":{"appendAttribution":false}},
+     "name":"Telegram: posted","type":"n8n-nodes-base.telegram","typeVersion":1.2,"position":[1640,-60]},
+    {"parameters":{"url":"={{ $('Config').item.json.script_url }}?action=mark&status=failed&row={{ $('Get due post').item.json.row }}","options":{}},
+     "name":"Mark failed","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1420,200]},
+    {"parameters":{"chatId":"1280104857","text":"=❌ البوست منزلش ({{ $('Get due post').item.json.date }} {{ $('Get due post').item.json.time }}). اتعلم failed في الشيت.","additionalFields":{"appendAttribution":false}},
+     "name":"Telegram: failed","type":"n8n-nodes-base.telegram","typeVersion":1.2,"position":[1640,200]}
+  ],
+  "connections": {
+    "09:00 and 21:30":{"main":[[{"node":"Config","type":"main","index":0}]]},
+    "Config":{"main":[[{"node":"Get due post","type":"main","index":0}]]},
+    "Get due post":{"main":[[{"node":"Post due?","type":"main","index":0}]]},
+    "Post due?":{"main":[[{"node":"Has image?","type":"main","index":0}],[]]},
+    "Has image?":{"main":[[{"node":"Download image","type":"main","index":0}],[{"node":"LinkedIn text only","type":"main","index":0}]]},
+    "Download image":{"main":[[{"node":"LinkedIn with image","type":"main","index":0}]]},
+    "LinkedIn with image":{"main":[[{"node":"Mark posted","type":"main","index":0}],[{"node":"Mark failed","type":"main","index":0}]]},
+    "LinkedIn text only":{"main":[[{"node":"Mark posted","type":"main","index":0}],[{"node":"Mark failed","type":"main","index":0}]]},
+    "Mark posted":{"main":[[{"node":"Telegram: posted","type":"main","index":0}]]},
+    "Mark failed":{"main":[[{"node":"Telegram: failed","type":"main","index":0}]]}
+  },
+  "settings":{"timezone":"Africa/Cairo","executionOrder":"v1"}
+}
