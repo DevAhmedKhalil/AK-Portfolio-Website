@@ -1,1 +1,0 @@
-import{r as n}from"./index-63315560.js";const o=e=>{const[c,a]=n.useState(()=>window.matchMedia(e).matches);return n.useEffect(()=>{const t=window.matchMedia(e),s=r=>a(r.matches);return t.addEventListener("change",s),a(t.matches),()=>t.removeEventListener("change",s)},[e]),c};export{o as u};
