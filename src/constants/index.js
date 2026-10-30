@@ -1,7 +1,14 @@
+import { SiDocker, SiLaravel, SiReact } from "react-icons/si";
+import { TbApi, TbCode, TbRobot, TbSitemap, TbStack2 } from "react-icons/tb";
+
 export const navLinks = [
   {
     id: "about",
     title: "About",
+  },
+  {
+    id: "skills",
+    title: "Skills",
   },
   {
     id: "work",
@@ -16,10 +23,46 @@ export const navLinks = [
 const tech = (name) => `${import.meta.env.BASE_URL}tech/${name}.png`;
 
 export const services = [
-  { title: "Backend Development", icon: tech("laravel") },
-  { title: "Frontend Development", icon: tech("react") },
-  { title: "DevOps & Deployment", icon: tech("docker") },
-  { title: "Automation & AI", icon: tech("python") },
+  {
+    title: "Laravel & PHP",
+    description: "Full applications, dashboards, and CMSs with Laravel.",
+    icon: SiLaravel,
+  },
+  {
+    title: "Software Development",
+    description: "Web apps and business tools, from database to deployment.",
+    icon: TbCode,
+  },
+  {
+    title: "System Design",
+    description: "Data models, caching, queues, and systems that scale.",
+    icon: TbSitemap,
+  },
+  {
+    title: "Software Architecture",
+    description: "Clean code, SOLID, and service and repository layers.",
+    icon: TbStack2,
+  },
+  {
+    title: "Backend & REST APIs",
+    description: "Laravel, Django REST Framework, and Node.js / Express.",
+    icon: TbApi,
+  },
+  {
+    title: "Frontend Development",
+    description: "React, Inertia.js, Blade, and Tailwind CSS.",
+    icon: SiReact,
+  },
+  {
+    title: "DevOps & Deployment",
+    description: "Docker, Dokploy, CI/CD, Nginx, and Linux servers.",
+    icon: SiDocker,
+  },
+  {
+    title: "Automation & AI",
+    description: "n8n workflows, Python scripting, and AI tools.",
+    icon: TbRobot,
+  },
 ];
 
 // One WebGL canvas per ball, and browsers cap the number of canvases, so keep this list short.
@@ -194,4 +237,107 @@ export const projects = [
       },
     ],
   },
+];
+
+export const skills = [
+  {
+    category: "Languages",
+    items: ["PHP", "JavaScript", "TypeScript", "Java", "C#", "Python", "SQL"],
+  },
+  {
+    category: "Backend",
+    items: [
+      "Laravel",
+      "Django REST Framework",
+      "Node.js / Express",
+      "REST APIs",
+      "Sanctum, JWT, RBAC",
+      "Queues",
+      "Caching",
+    ],
+  },
+  {
+    category: "Frontend",
+    items: [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "React",
+      "Inertia.js",
+      "Laravel Blade",
+      "Tailwind CSS",
+      "Bootstrap",
+      "Right-to-left layouts",
+    ],
+  },
+  {
+    category: "Software Design",
+    items: [
+      "Clean code",
+      "SOLID principles",
+      "Design patterns",
+      "Layered architecture",
+      "Service and repository layers",
+      "System design",
+    ],
+  },
+  {
+    category: "Databases",
+    items: [
+      "MySQL",
+      "MongoDB",
+      "SQLite",
+      "Data modeling",
+      "Indexing",
+      "Query optimization",
+    ],
+  },
+  {
+    category: "DevOps",
+    items: [
+      "Docker",
+      "Docker Compose",
+      "Dokploy",
+      "CI/CD",
+      "Linux VPS",
+      "Nginx",
+      "Redis",
+      "DNS",
+      "cPanel",
+    ],
+  },
+  {
+    category: "Automation and AI",
+    items: [
+      "n8n workflows",
+      "AI-powered automations",
+      "Python scripting",
+      "Selenium",
+      "Claude Code",
+    ],
+  },
+  {
+    category: "Testing and Tools",
+    items: ["PHPUnit", "Pest", "Postman", "Git", "GitHub", "WordPress"],
+  },
+  {
+    category: "Currently Learning",
+    items: [
+      "System design",
+      "Software architecture",
+      "AutoCAD automation with the .NET API (C#)",
+    ],
+  },
+];
+
+export const education = {
+  degree: "Bachelor of Computer Science",
+  school: "Menofia University, Egypt",
+  years: "2020 - 2024",
+};
+
+export const languages = [
+  { name: "Arabic", level: "Native" },
+  { name: "English", level: "Intermediate" },
+  { name: "German", level: "Beginner" },
 ];

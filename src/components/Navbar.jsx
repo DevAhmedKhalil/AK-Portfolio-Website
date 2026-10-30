@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { styles } from "../styles";
 import { navLinks } from "../constants";
 
-import Logo from "../Images/logo.png";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
 
 const Navbar = () => {
   const [active, setActive] = useState("");
@@ -85,9 +85,9 @@ const Navbar = () => {
             }}
           >
             <img
-              src={Logo}
-              alt="logo"
-              className="w-9 h-9 object-contain logo"
+              src={`${import.meta.env.BASE_URL}logo.svg`}
+              alt="AK logo"
+              className="w-9 h-9"
             />
             <p className="text-white text-[20px] font-bold cursor-pointer flex">
               Ahmed&nbsp;
@@ -96,16 +96,14 @@ const Navbar = () => {
           </Link>
           {renderNavLinks(false)}
           <div className="sm:hidden flex flex-1 justify-end items-center">
-            <img
-              src={
-                toggle
-                  ? "https://cdn.iconscout.com/icon/premium/png-512-thumb/exit-full-screen-8708329-7013059.png?f=webp&w=256"
-                  : "https://cdn.iconscout.com/icon/premium/png-512-thumb/dashboard-8708322-7013054.png?f=webp&w=256"
-              }
-              alt="menu"
-              className="w-[28px] h-[18px] object-contain cursor-pointer"
+            <button
+              type="button"
+              aria-label={toggle ? "Close menu" : "Open menu"}
+              className="text-white text-[28px]"
               onClick={() => setToggle(!toggle)}
-            />
+            >
+              {toggle ? <HiX /> : <HiMenuAlt3 />}
+            </button>
             <div
               className={`p-4 black-gradient absolute top-14 right-0 mx-2 my-2 min-w-[120px] z-10 rounded-xl foggy-glass ${
                 toggle ? "flex text-small" : "hidden"

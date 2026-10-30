@@ -23,9 +23,11 @@ const Hero = () => {
             <Typewriter
               options={{
                 strings: [
-                  "Backend With Laravel",
-                  "Frontend With React",
+                  "Backend With Laravel & PHP",
+                  "Software Development",
+                  "System Design & Software Architecture",
                   "APIs With Django & Node.js",
+                  "Frontend With React",
                   "Deployments With Docker",
                 ],
                 autoStart: true,
